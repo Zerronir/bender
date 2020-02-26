@@ -1,39 +1,46 @@
 import java.util.*;
 
 class Bender{
+    String[][] mapa;
+    Player p;
+    int[] posSalida;
+    String resultado = "";
+    LinkedList<Integer[]> teleport = new LinkedList<>();
+    LinkedList<Integer[]> iterator = new LinkedList<>();
     // Constructor: ens passen el mapa en forma d'String
     public Bender(String mapa) {
         System.out.println(mapa);
 
-        String [] rows = mapa.split("\\r?\\n");
-        char[] columns = new char[0];
+        String [] rows = mapa.split("\n");
+        String[] columns = new String[0];
 
         for (int i = 0; i < rows.length; i++) {
-            columns = Arrays.toString(rows).toCharArray();
+            columns = columns.toCharArray();
         }
 
-        char[][] map = new char[rows.length][columns.length];
+        this.mapa = new String[columns.length][];
+        for (int i = 0; i < columns.length; i++) {
+            this.mapa[i] = columns[i].split("");
+        }
 
-        int pos = 0;
-        int posRobot = 0;
-
-
-        for (int i = 0; i < rows.length; i++) {
-            for (int j = 0; j < columns.length; j++) {
-                char c = mapa.charAt(j);
-
-                if(c == 'X'){
-                    map[i][j] = c;
-                    posRobot = j;
-                    System.out.println(posRobot);
+        for (int i = 0; i < this.mapa.length; i++) {
+            for (int j = 0; j < this.mapa[0].length; j++) {
+                if (this.mapa[i][j].equals("X")) {
+                    this.p = new Player(new int[]{i, j});
                 }
-
-                map[i][j] = c;
-                System.out.println(c);
+                if (this.mapa[i][j].equals("$")) {
+                    this.posSalida = new int[]{i, j};
+                }
+                if (this.mapa[i][j].equals("T")) {
+                    teleport.add(new Integer[]{i, j});
+                    System.out.println("There's a teleport ! " + i + " " + j);
+                }
+                if (this.mapa[i][j].equals("I")) {
+                    iterator.add(new Integer[]{i, j});
+                    System.out.println("There's a iterator!! " + i + " " + j);
+                }
             }
         }
-
-        System.out.println(Arrays.toString(rows) + " " + Arrays.toString(columns));
 
 
     }
@@ -47,6 +54,8 @@ class Bender{
         //Emmagatzemam el resultat
         String resultat = "";
         boolean llistat = true;
+
+
 
 
         return "";
