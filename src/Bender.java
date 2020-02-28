@@ -4,7 +4,7 @@ class Bender{
     String[][] mapa;
     Robot p;
     int[] posSalida;
-    String resultado = "";
+    String resultat = "";
     LinkedList<Integer[]> teleport = new LinkedList<>();
     LinkedList<Integer[]> iterator = new LinkedList<>();
 
@@ -15,21 +15,33 @@ class Bender{
 
         //Treïem el número de files que té el mapa
         String[] rows = mapa.split("\n");
-        char[] columns = new char[0];
+        String[] columns = mapa.split("\n");
 
-        for (int i = 0; i < rows.length; i++) {
-            columns = Arrays.toString(rows).toCharArray();
+        this.mapa = new String[columns.length][];
+        for (int i = 0; i < columns.length; i++) {
+            this.mapa[i] = columns[i].split("");
         }
 
         char[][] map = new char[rows.length][columns.length];
         int k = 0;
 
-        for (int i = 0; i < rows.length; i++) {
-            for (int j = 0; j < columns.length; j++) {
+        //assert false;
+        for (int i = 0; i < this.mapa.length; i++) {
+            for (int j = 0; j < this.mapa[0].length; j++) {
                 if(this.mapa[i][j].equals("X")){
                     System.out.println("robot a: " + i + " " + j);
                     this.p = new Robot(new int[]{i, j});
                 }
+
+                if(this.mapa[i][j].equals("$")){
+                    this.posSalida = new int[]{i,j};
+                }
+
+                if(this.mapa[i][j].equals("I")){
+                    teleport.add(new Integer[]{i,j});
+                    System.out.println("S'ha trobat un teleportador: " + i + " " + j);
+                }
+
             }
         }
 
@@ -40,18 +52,40 @@ class Bender{
     // els valors «S», «N», «W» o «E»,
     // segons la posició del robot a cada moment.
     public String run() {
-
+        StringBuilder st = new StringBuilder();
         //Emmagatzemam el resultat
         String resultat = "";
         boolean llistat = true;
 
         while(p.priority == p.priorityDir1){
-            p.toSouth(mapa);
 
-            return Arrays.deepToString(p.toSouth(mapa));
+            while(p.toSouth(this.mapa) != null){
+                moveRobot();
+                st.append('S');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida)){
+                    return resultat;
+                }
+            }
+            if (p.priority != p.priorityDir1)break;
         }
 
-        return "";
+        return resultat;
+    }
+
+    void moveRobot(){
+        this.resultat += p.lastMovement;
+        printMap(this.mapa);
+    }
+
+    void printMap(String[][] mapa){
+        for (int i = 0; i < mapa.length; i++) {
+            for (int j = 0; j < mapa[0].length; j++) {
+                System.out.println(mapa[i][j]);
+            }
+            System.out.println();
+        }
     }
 
     public int bestRun() {
@@ -91,6 +125,13 @@ class Robot {
         return mapa;
     }
 
-    public void priority() {
+
+
+    public void priorityChange() {
+        if(priority == priorityDir1){
+            priority = priorityDir2;
+        }else{
+            priority = priorityDir1;
+        }
     }
 }
