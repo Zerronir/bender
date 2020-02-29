@@ -83,7 +83,8 @@ class Bender{
 
             }
             if(p.priority != p.priorityDir1)break;
-            while(p.toSouth(this.mapa) != null){
+
+            if(p.toSouth(this.mapa) != null){
                 moveRobot();
                 st.append('S');
                 resultat = st.toString();
@@ -91,7 +92,10 @@ class Bender{
                 if(Arrays.equals(p.posicio, posSalida)){
                     return resultat;
                 }
+                continue;
+
             }
+
             if(p.priority != p.priorityDir1)break;
 
             while(p.toNorth(this.mapa) != null){
@@ -106,6 +110,19 @@ class Bender{
             }
 
             if(p.priority != p.priorityDir1)break;
+
+            if(p.toEast(this.mapa) != null){
+                moveRobot();
+                st.append('E');
+                resultat = st.toString();
+
+                if (Arrays.equals(p.posicio, posSalida)){
+                    return resultat;
+                }
+                continue;
+
+
+            }
 
             while(p.toWest(this.mapa) != null){
                 moveRobot();
