@@ -6,7 +6,7 @@ class Bender{
     int[] posSalida;
     String resultat = "";
     LinkedList<Integer[]> teleport = new LinkedList<>();
-    LinkedList<Integer[]> iterator = new LinkedList<>();
+    LinkedList<Integer[]> inverter = new LinkedList<>();
 
     // Constructor: ens passen el mapa en forma d'String
     public Bender(String mapa) {
@@ -29,7 +29,7 @@ class Bender{
         for (int i = 0; i < this.mapa.length; i++) {
             for (int j = 0; j < this.mapa[0].length; j++) {
                 if(this.mapa[i][j].equals("X")){
-                    System.out.println("robot a: " + i + " " + j);
+                    System.out.println("Robot at: " + i + " " + j);
                     this.p = new Robot(new int[]{i, j});
                 }
 
@@ -39,7 +39,12 @@ class Bender{
 
                 if(this.mapa[i][j].equals("T")){
                     teleport.add(new Integer[]{i,j});
-                    System.out.println("S'ha trobat un teleportador: " + i + " " + j);
+                    System.out.println("I found a teleport point at: " + i + " " + j);
+                }
+
+                if(this.mapa[i][j].equals("I")){
+                    inverter.add(new Integer[]{i,j});
+                    System.out.println("I found an inverter at: " + i + " " + j);
                 }
 
             }
@@ -120,9 +125,22 @@ class Bender{
                     return resultat;
                 }
                 continue;
-
-
             }
+
+            if(p.priority != p.priorityDir1)break;
+
+            if(p.toSouth(this.mapa) != null){
+                moveRobot();
+                st.append('S');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida)){
+                    return resultat;
+                }
+                continue;
+            }
+
+            if(p.priority != p.priorityDir1)break;
 
             while(p.toWest(this.mapa) != null){
                 moveRobot();
@@ -201,6 +219,8 @@ class Bender{
         return mapa;
     }
 
+    //Def
+
     //Definim si es un teleportador
     boolean aTeleport(int[] coor) {
         System.out.println(Arrays.toString(coor));
@@ -234,20 +254,20 @@ class Robot {
     char[] priorityDir2 = new char[]{'N', 'W', 'S', 'E'};
     char[] priority = priorityDir1;
 
-    public Robot(int[] posicio){
+    public Robot(int[] posicio) {
         this.posicio = posicio;
-        System.out.println("La posició del robot es: " + posicio[0] + " " + posicio[1]);
+        System.out.println("Robot's position: " + posicio[0] + " " + posicio[1]);
     }
 
     //Moure cap al sud
-    String[][] toSouth(String[][] mapa){
+    String[][] toSouth(String[][] mapa) {
         System.out.println("Moving southwards");
 
-        if(mapa[posicio[0] +1 ][posicio[1]].equals("#")){
+        if (mapa[posicio[0] + 1][posicio[1]].equals("#")) {
             return null;
-        }else{
+        } else {
             mapa[posicio[0]][posicio[1]] = " ";
-            mapa[posicio[0]+1][posicio[1]] = "X";
+            mapa[posicio[0] + 1][posicio[1]] = "X";
             posicio[0] = posicio[0] + 1;
             lastMovement = 'S';
             movements++;
@@ -257,13 +277,13 @@ class Robot {
     }
 
     //Funció per moure el Robot cap a l'est
-    String[][] toEast(String[][] mapa){
+    String[][] toEast(String[][] mapa) {
         System.out.println("Moving east");
-        if(mapa[posicio[0]][posicio[1]+1].equals("#")){
+        if (mapa[posicio[0]][posicio[1] + 1].equals("#")) {
             return null;
-        }else{
+        } else {
             mapa[posicio[0]][posicio[1]] = " ";
-            mapa[posicio[0]][posicio[1]+1] = "X";
+            mapa[posicio[0]][posicio[1] + 1] = "X";
             posicio[1] = posicio[1] + 1;
             lastMovement = 'E';
             movements++;
@@ -273,14 +293,14 @@ class Robot {
     }
 
     //Funció per a moure el robot cap al nord
-    String[][] toNorth(String[][] mapa){
+    String[][] toNorth(String[][] mapa) {
         System.out.println("Moving north");
 
-        if(mapa[posicio[0] - 1][posicio[1]].equals("#")){
+        if (mapa[posicio[0] - 1][posicio[1]].equals("#")) {
             return null;
-        }else{
+        } else {
             mapa[posicio[0]][posicio[1]] = " ";
-            mapa[posicio[0]-1][posicio[1]] = "X";
+            mapa[posicio[0] - 1][posicio[1]] = "X";
             posicio[0] = posicio[0] - 1;
             lastMovement = 'N';
             movements++;
@@ -290,14 +310,14 @@ class Robot {
     }
 
     //Funcio per a moure el robot cap a l'oest
-    String[][] toWest(String[][] mapa){
+    String[][] toWest(String[][] mapa) {
         System.out.println("Moving west");
 
-        if(mapa[posicio[0]][posicio[1] - 1].equals("#")){
+        if (mapa[posicio[0]][posicio[1] - 1].equals("#")) {
             return null;
-        }else{
+        } else {
             mapa[posicio[0]][posicio[1]] = " ";
-            mapa[posicio[0]][posicio[1]-1] = "X";
+            mapa[posicio[0]][posicio[1] - 1] = "X";
             posicio[1] = posicio[1] - 1;
             lastMovement = 'W';
             movements++;
@@ -307,9 +327,9 @@ class Robot {
 
     //Camviem les prioritats
     public void priorityChange() {
-        if(priority == priorityDir1){
+        if (priority == priorityDir1) {
             priority = priorityDir2;
-        }else{
+        } else {
             priority = priorityDir1;
         }
     }
