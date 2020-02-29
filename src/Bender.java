@@ -37,7 +37,7 @@ class Bender{
                     this.posSalida = new int[]{i,j};
                 }
 
-                if(this.mapa[i][j].equals("I")){
+                if(this.mapa[i][j].equals("T")){
                     teleport.add(new Integer[]{i,j});
                     System.out.println("S'ha trobat un teleportador: " + i + " " + j);
                 }
@@ -68,24 +68,138 @@ class Bender{
                     return resultat;
                 }
             }
+
+            //Trencam si la prioritat no es la incial
             if (p.priority != p.priorityDir1)break;
+
+            while(p.toEast(this.mapa) != null){
+                moveRobot();
+                st.append('E');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida)){
+                    return resultat;
+                }
+
+            }
+            if(p.priority != p.priorityDir1)break;
+            while(p.toSouth(this.mapa) != null){
+                moveRobot();
+                st.append('S');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida)){
+                    return resultat;
+                }
+            }
+            if(p.priority != p.priorityDir1)break;
+
+            while(p.toNorth(this.mapa) != null){
+                moveRobot();
+                st.append('N');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida)){
+                    return resultat;
+                }
+
+            }
+
+            if(p.priority != p.priorityDir1)break;
+
+            while(p.toWest(this.mapa) != null){
+                moveRobot();
+                st.append('W');
+                resultat = st.toString();
+
+                //Quan la array es igual a la posició actual y a la de sortida retornam el resultat
+                if(Arrays.equals(p.posicio,posSalida)){
+                    return resultat;
+                }
+            }
+
+            if(p.priority != p.priorityDir1)break;
         }
 
+        while(p.priority == p.priorityDir2){
+
+            while(p.toNorth(this.mapa) != null){
+                moveRobot();
+                st.append('N');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida)){
+                    return resultat;
+                }
+            }
+
+            if(p.priority != p.priorityDir2)break;
+        }
+
+        //Retornam el resultat
         return resultat;
     }
 
+    //Movem el robot cap al destí
     void moveRobot(){
         this.resultat += p.lastMovement;
         printMap(this.mapa);
+
+        //Transportam si trobam un teleportador
+        if(aTeleport(p.posicio))this.mapa = transportRobot(this.mapa);
+
     }
 
+    //Pintam el mapa
     void printMap(String[][] mapa){
         for (int i = 0; i < mapa.length; i++) {
             for (int j = 0; j < mapa[0].length; j++) {
-                System.out.println(mapa[i][j]);
+                System.out.println(Arrays.deepToString(mapa));
             }
             System.out.println();
         }
+    }
+
+    //Teletransportam al robot
+    String[][] transportRobot (String[][] mapa){
+
+        System.out.println("You're being transported to the next teleport point");
+        for (int i = 0; i < teleport.size(); i++) {
+            System.out.println(teleport.get(i)[0] + " - " + teleport.get(i)[1]);
+        }
+
+        //Cercam el telportador mes proper
+        int[] tp = new int[2];
+
+        if(teleport.size() == 2){
+            for (int i = 0; i < teleport.size(); i++) {
+                int[] tp2 = new int[]{teleport.get(i)[0], teleport.get(i)[1]};
+                if(!Arrays.equals(tp2, p.posicio))tp = tp2;
+            }
+
+            p.posicio = tp;
+
+        }
+
+        return mapa;
+    }
+
+    //Definim si es un teleportador
+    boolean aTeleport(int[] coor) {
+        System.out.println(Arrays.toString(coor));
+        if(teleport.size() == 0)return false;
+
+        for (int i = 0; i < teleport.size(); i++) {
+            int coorX = teleport.get(i)[0];
+            int coorY = teleport.get(i)[1];
+
+            int[] teleporter = new int[]{coorX,coorY};
+
+            if(Arrays.equals(teleporter, coor))return true;
+
+        }
+
+        return false;
     }
 
     public int bestRun() {
@@ -125,8 +239,56 @@ class Robot {
         return mapa;
     }
 
+    //Funció per moure el Robot cap a l'est
+    String[][] toEast(String[][] mapa){
+        System.out.println("Moving east");
+        if(mapa[posicio[0]][posicio[1]+1].equals("#")){
+            return null;
+        }else{
+            mapa[posicio[0]][posicio[1]] = " ";
+            mapa[posicio[0]][posicio[1]+1] = "X";
+            posicio[1] = posicio[1] + 1;
+            lastMovement = 'E';
+            movements++;
+        }
 
+        return mapa;
+    }
 
+    //Funció per a moure el robot cap al nord
+    String[][] toNorth(String[][] mapa){
+        System.out.println("Moving north");
+
+        if(mapa[posicio[0] - 1][posicio[1]].equals("#")){
+            return null;
+        }else{
+            mapa[posicio[0]][posicio[1]] = " ";
+            mapa[posicio[0]-1][posicio[1]] = "X";
+            posicio[0] = posicio[0] - 1;
+            lastMovement = 'N';
+            movements++;
+        }
+
+        return mapa;
+    }
+
+    //Funcio per a moure el robot cap a l'oest
+    String[][] toWest(String[][] mapa){
+        System.out.println("Moving west");
+
+        if(mapa[posicio[0]][posicio[1] - 1].equals("#")){
+            return null;
+        }else{
+            mapa[posicio[0]][posicio[1]] = " ";
+            mapa[posicio[0]][posicio[1]-1] = "X";
+            posicio[1] = posicio[1] - 1;
+            lastMovement = 'W';
+            movements++;
+        }
+        return mapa;
+    }
+
+    //Camviem les prioritats
     public void priorityChange() {
         if(priority == priorityDir1){
             priority = priorityDir2;
