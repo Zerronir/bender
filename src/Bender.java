@@ -1,6 +1,7 @@
 import java.util.*;
 
 class Bender{
+
     String[][] mapa;
     Robot p;
     int[] posSalida;
@@ -13,8 +14,7 @@ class Bender{
         System.out.println(mapa);
         String[][] mape = this.mapa;
 
-        //Treïem el número de files que té el mapa
-        String[] rows = mapa.split("\n");
+        //Treïem el número de columnes que té el mapa
         String[] columns = mapa.split("\n");
 
         this.mapa = new String[columns.length][];
@@ -22,19 +22,16 @@ class Bender{
             this.mapa[i] = columns[i].split("");
         }
 
-        char[][] map = new char[rows.length][columns.length];
-        int k = 0;
-
         //assert false;
         for (int i = 0; i < this.mapa.length; i++) {
             for (int j = 0; j < this.mapa[0].length; j++) {
                 if(this.mapa[i][j].equals("X")){
-                    System.out.println("Robot at: " + i + " " + j);
                     this.p = new Robot(new int[]{i, j});
                 }
 
                 if(this.mapa[i][j].equals("$")){
                     this.posSalida = new int[]{i,j};
+                    System.out.println("You have arrived to your destination: " + i + " " + j);
                 }
 
                 if(this.mapa[i][j].equals("T")){
@@ -60,7 +57,7 @@ class Bender{
         StringBuilder st = new StringBuilder();
         //Emmagatzemam el resultat
         String resultat = "";
-        boolean llistat = true;
+        int moves = 0;
 
         while(p.priority == p.priorityDir1){
 
@@ -142,6 +139,20 @@ class Bender{
 
             if(p.priority != p.priorityDir1)break;
 
+            if(p.toEast(this.mapa) != null){
+                moveRobot();
+                st.append('E');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida)){
+                    return resultat;
+                }
+
+                continue;
+            }
+
+            if(p.priority != p.priorityDir1)break;
+
             while(p.toWest(this.mapa) != null){
                 moveRobot();
                 st.append('W');
@@ -162,13 +173,97 @@ class Bender{
                 moveRobot();
                 st.append('N');
                 resultat = st.toString();
-
+                moves++;
                 if(Arrays.equals(p.posicio, posSalida)){
                     return resultat;
                 }
             }
 
             if(p.priority != p.priorityDir2)break;
+
+            while(p.toWest(this.mapa) != null){
+                moveRobot();
+                st.append('W');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida))return resultat;
+            }
+
+            if(p.priority != p.priorityDir2)break;
+
+            if(p.toNorth(this.mapa) != null){
+                moveRobot();
+                st.append('N');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida))return resultat;
+                continue;
+            }
+
+            if(p.priority != p.priorityDir2)break;
+
+            while (p.toSouth(this.mapa) != null){
+                moveRobot();
+                st.append('S');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida))return resultat;
+
+            }
+
+            if(p.priority != p.priorityDir2)break;
+
+            if(p.toNorth(this.mapa) != null){
+                moveRobot();
+                st.append('N');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida))return resultat;
+                continue;
+            }
+
+            if(p.priority != p.priorityDir2)break;
+
+            if(p.toWest(this.mapa) != null){
+                moveRobot();
+                st.append('W');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida))return resultat;
+                continue;
+            }
+
+            if(p.priority != p.priorityDir2)break;
+
+            if(p.toSouth(this.mapa) != null){
+                moveRobot();
+                st.append('S');
+                resultat = st.toString();
+                if(Arrays.equals(p.posicio, posSalida))return resultat;
+                continue;
+            }
+
+            if(p.priority != p.priorityDir2)break;
+
+            if(p.toNorth(this.mapa) != null){
+                moveRobot();
+                st.append('N');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida))return resultat;
+                continue;
+            }
+
+            while(p.toEast(this.mapa) != null){
+                moveRobot();
+                st.append('E');
+                resultat = st.toString();
+
+                if(Arrays.equals(p.posicio, posSalida))return resultat;
+            }
+
+            if(p.priority != p.priorityDir2)break;
+
         }
 
         //Retornam el resultat
@@ -178,21 +273,21 @@ class Bender{
     //Movem el robot cap al destí
     void moveRobot(){
         this.resultat += p.lastMovement;
-        printMap(this.mapa);
+        printMove(this.mapa);
 
         //Transportam si trobam un teleportador
         if(aTeleport(p.posicio))this.mapa = transportRobot(this.mapa);
 
+        //Invertim si trobam un inversor
+        if(aInverter(p.posicio))p.priorityChange();
+
+
+
     }
 
     //Pintam el mapa
-    void printMap(String[][] mapa){
-        for (int i = 0; i < mapa.length; i++) {
-            for (int j = 0; j < mapa[0].length; j++) {
-                System.out.println(Arrays.deepToString(mapa));
-            }
-            System.out.println();
-        }
+    void printMove(String[][] mapa){
+        System.out.println("------------------ END OF MOVEMENT -------------------");
     }
 
     //Teletransportam al robot
@@ -213,17 +308,32 @@ class Bender{
             }
 
             p.posicio = tp;
-
         }
 
         return mapa;
     }
 
-    //Def
+    //Definim si troban un inversor
+    boolean aInverter(int[] coorXY){
+        System.out.println("I found an inverter at: " + Arrays.toString(coorXY));
+        if(inverter.size() == 0)return false;
+
+        for (int i = 0; i < inverter.size(); i++) {
+            int coorX = inverter.get(i)[0];
+            int coorY = inverter.get(i)[1];
+
+            int[] inver = new int[]{coorX, coorY};
+
+            if(Arrays.equals(inver, coorXY))return true;
+
+        }
+
+        return false;
+    }
 
     //Definim si es un teleportador
     boolean aTeleport(int[] coor) {
-        System.out.println(Arrays.toString(coor));
+        System.out.println("I found a teleport point at: " + Arrays.toString(coor));
         if(teleport.size() == 0)return false;
 
         for (int i = 0; i < teleport.size(); i++) {
