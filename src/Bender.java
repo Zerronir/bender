@@ -12,7 +12,6 @@ class Bender{
     // Constructor: ens passen el mapa en forma d'String
     public Bender(String mapa) {
         System.out.println(mapa);
-        String[][] mape = this.mapa;
 
         //Treïem el número de columnes que té el mapa
         String[] columns = mapa.split("\n");
@@ -54,10 +53,13 @@ class Bender{
     // els valors «S», «N», «W» o «E»,
     // segons la posició del robot a cada moment.
     public String run() {
+
+        // Feim un StringBuilder on emmagatzemar els caracters
+        // de cada passa que realitza el robot
         StringBuilder st = new StringBuilder();
-        //Emmagatzemam el resultat
+
+        // Emmagatzemam el resultat
         String resultat = "";
-        int moves = 0;
 
         while(p.priority == p.priorityDir1){
 
@@ -173,7 +175,6 @@ class Bender{
                 moveRobot();
                 st.append('N');
                 resultat = st.toString();
-                moves++;
                 if(Arrays.equals(p.posicio, posSalida)){
                     return resultat;
                 }
@@ -266,19 +267,19 @@ class Bender{
 
         }
 
-        //Retornam el resultat
+        // Retornam el resultat
         return resultat;
     }
 
-    //Movem el robot cap al destí
+    // Movem el robot cap al destí
     void moveRobot(){
         this.resultat += p.lastMovement;
         printMove(this.mapa);
 
-        //Transportam si trobam un teleportador
+        // Transportam si trobam un teleportador
         if(aTeleport(p.posicio))this.mapa = transportRobot(this.mapa);
 
-        //Invertim si trobam un inversor
+        // Invertim si trobam un inversor
         if(aInverter(p.posicio))p.priorityChange();
 
 
@@ -298,7 +299,7 @@ class Bender{
             System.out.println(teleport.get(i)[0] + " - " + teleport.get(i)[1]);
         }
 
-        //Cercam el telportador mes proper
+        //Donam una dimensió a l'array de teleportadors
         int[] tp = new int[2];
 
         if(teleport.size() == 2){
@@ -350,6 +351,21 @@ class Bender{
     }
 
     public int bestRun() {
+        // Cream el mateix patró de moviment per al best run.
+        // El que hem de conseguir es arribar al destí amb el menor número
+        // de moviments possible
+        int moves = 0;
+
+        while(p.priority == p.priorityDir1){
+            while(p.toSouth(this.mapa) != null){
+                moveRobot();
+
+                moves++;
+            }
+            if(p.priority != p.priorityDir1)break;
+        }
+
+        // Retornam el resultat dels moviments
         return 0;
     }
 
